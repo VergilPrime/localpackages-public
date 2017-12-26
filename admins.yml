@@ -1,0 +1,3 @@
+### Change names under "Admins" to whomever should have access to dangerous tools like /run. Not case sensitive.
+Admins:
+  - VergilPrime
