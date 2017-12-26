@@ -5,8 +5,11 @@ register_command('run',associative_array(
   'permission':'commandhelper.interpreter',
   'example':'/run set_ploc(player(\'verg\'),array(0,100,0,\'world\'));',
   'executor':closure(@alias,@sender,@args){
-    @admins = yml_decode(read('../admins.yml'))[admins];
-    if(array_contains_ic(@admins,@sender) || @sender === '~console'){
+    @admins = yml_decode(read('../admins.yml'))['Admins'];
+    if(@sender === 'CONSOLE'){
+      @returns = eval(array_implode(@args));
+      sys_out(@returns);
+    }else if(array_contains_ic(@admins,@sender)){
       @returns = eval(array_implode(@args));
       if(@returns !== ''){
         tmsg(@sender,@returns);
@@ -33,7 +36,7 @@ register_command('settitle',associative_array(
       #Set 'display' in the item meta to your custom title. &r resets the default italics.
       if(extension_exists('chplaceholderapi')){
         if(reg_count('%',array_implode(@args)) > 0){
-          @itemmeta['display'] = set_placeholders(array_implode(@args));
+          @itemmeta['display'] = set_placeholders(@sender,array_implode(@args));
         }else{
           @itemmeta['display'] = colorize(array_implode(@args));
         }
@@ -82,7 +85,7 @@ register_command('setlore',associative_array(
       #set the lore in the slot we want
       if(extension_exists('chplaceholderapi')){
         if(reg_count('%',array_implode(@args)) > 0){
-          @itemmeta['lore'][@slot - 1] = set_placeholders(array_implode(@args));
+          @itemmeta['lore'][@slot - 1] = set_placeholders(@sender,array_implode(@args));
         }else{
           @itemmeta['lore'][@slot - 1] = colorize(array_implode(@args));
         }

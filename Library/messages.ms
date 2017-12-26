@@ -2,17 +2,17 @@ include('configuration.ms')
 
 _create_config('../../messages.yml',associative_array(
 	'message format': associative_array(
-		'prefix': '&3[&bA&3]&b Angel\'s Reach&3:&b '
+		'prefix': '&3[&bA&3]&b Angel\'s Reach&3:&7 '
 	),
 	'error format': associative_array(
-	  'prefix': '&4[&cA&4]&c Angel\'s Reach&4:&c '
+	  'prefix': '&4[&cA&4]&c Angel\'s Reach&4:&7 '
 	),
 	'staff message format': associative_array(
-	  'prefix': '&2[&aA&2]&a Angel\'s Reach&2:&a '
+	  'prefix': '&2[&aA&2]&a Angel\'s Reach&2:&7 '
 	)
 ))
 
-_load_config('messages')
+_load_config('../../messages.yml')
 
 proc(_arm,@message,@player,@json,@format){
 	_format_message(@message,@player,'message',@json,@format)
@@ -34,7 +34,7 @@ proc(_arb,@message,@json,@format){
 
 proc(_arsb,@message,@json,@format){
 	foreach(all_players(),@player){
-		if(has_permission(@player,'angelsreach.staffbroadcast'){
+		if(has_permission(@player,'angelsreach.staffbroadcast')){
 			_format_message(@message,@player,'staff message',@json,@format)
 		}
 	}
@@ -43,7 +43,7 @@ proc(_arsb,@message,@json,@format){
 proc(_format_message,@message,@player,@type,@json,@format){
 
 	#If formatting isn't inserted here, use global message configuration
-	if(@format === '', @format = import('config.messages')['Message Format']);
+	if(@format === '', @format = import('config.messages')[@type.' format']);
 
 	#If json isn't specified, assume it's not a json message
 	if(@json === '', @json = false);
@@ -52,14 +52,14 @@ proc(_format_message,@message,@player,@type,@json,@format){
 	if(@player === '', @player = player());
 
 	#If Message Prefix exists
-	if(array_index_exists(@format[@type.' format'],'prefix')){
-		@prefix = @format[@type.' format']['prefix']
+	if(array_index_exists(@format,'prefix')){
+		@prefix = @format['prefix']
 	}else{
 		@prefix = '';
 	}
 
 	#If Message Suffix exists
-	if(array_index_exists(@format[@type.' format'],'suffix')){
+	if(array_index_exists(@format,'suffix')){
 		@suffix = @format[@type.' format']['suffix'];
 	}else{
 		@suffix = '';
@@ -68,14 +68,14 @@ proc(_format_message,@message,@player,@type,@json,@format){
 	#If CHPlaceholderAPI is installed
 	if(extension_exists('chplaceholderapi')){
 		#If at least two % exist in the message
-		if(reg_count('%',array_implode(@args)) >= 2){
+		if(reg_count('%',@message) >= 2){
 			#format the message using CHPlaceholderAPI
-			@formattedmessage = set_placeholders(@prefix.@message.@suffix)
+			@formattedmessage = set_placeholders(@player,@prefix.@message.@suffix)
 		}else{
 			@formattedmessage = colorize(@prefix.@message.@suffix)
 		}
 	}else{
-		if(reg_count('%',array_implode(@args)) > 0){
+		if(reg_count('%',@message) > 0){
 			sys_out('CHPlaceholderAPI extension is required to use placeholders with VergilPrime\'s public packages.');
 			sys_out('Grab it here: https://letsbuild.net/jenkins/');
 		}
